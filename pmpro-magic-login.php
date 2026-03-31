@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Paid Memberships Pro - Magic Login
- * Plugin URI:  https://www.paidmembershipspro.com/magic-login/
+ * Plugin URI:  https://www.paidmembershipspro.com/add-ons/magic-login/
  * Description: Adds passwordless login via secure email links to Paid Memberships Pro.
  * Version:     1.0
  * Author:      Paid Memberships Pro
