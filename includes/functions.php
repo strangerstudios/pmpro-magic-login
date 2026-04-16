@@ -9,16 +9,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Enqueue styles and scripts on login pages.
- *
+ * This runs during the login_form action to ensure scripts are available on both wp-login.php and PMPro's frontend login form.
+ * 
  * @since 1.0
  *
  * @return void
  */
 function pmpro_ml_enqueue_scripts() {
-	if ( function_exists( 'pmpro_is_login_page' ) && ! pmpro_is_login_page() ) {
-		return;
-	}
-
 	wp_enqueue_style(
 		'pmpro-magic-login',
 		PMPRO_MAGIC_LOGIN_URL . 'css/pmpro-magic-login.css',
@@ -38,8 +35,6 @@ function pmpro_ml_enqueue_scripts() {
 
 	wp_localize_script( 'pmpro-magic-login', 'pmpro_magic_login_js', array( 'login_url' => $login_url ) );
 }
-add_action( 'login_enqueue_scripts', 'pmpro_ml_enqueue_scripts' );
-add_action( 'wp_enqueue_scripts', 'pmpro_ml_enqueue_scripts' );
 
 /**
  * Inject the "Email Me a Login Link" button into the login form.
@@ -49,6 +44,8 @@ add_action( 'wp_enqueue_scripts', 'pmpro_ml_enqueue_scripts' );
  * @return void
  */
 function pmpro_ml_add_login_button() {
+	pmpro_ml_enqueue_scripts();
+
 	$button_class = 'pmpro_btn pmpro_btn-primary';
 	if ( current_filter() === 'login_form' ) {
 		$button_class = 'button button-primary button-hero';
