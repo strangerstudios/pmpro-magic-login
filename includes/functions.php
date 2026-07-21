@@ -10,12 +10,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Enqueue styles and scripts on login pages.
  *
+ * Assets are enqueued early on recognized login pages and on demand for forms
+ * rendered elsewhere, such as PMPro login widgets.
+ *
  * @since 1.0
  *
+ * @param bool $force Whether to enqueue assets outside a recognized login page.
  * @return void
  */
-function pmpro_ml_enqueue_scripts() {
-	if ( function_exists( 'pmpro_is_login_page' ) && ! pmpro_is_login_page() ) {
+function pmpro_ml_enqueue_scripts( $force = false ) {
+	if ( ! $force && function_exists( 'pmpro_is_login_page' ) && ! pmpro_is_login_page() ) {
+		return;
+	}
+
+	if ( wp_script_is( 'pmpro-magic-login', 'enqueued' ) ) {
 		return;
 	}
 
@@ -49,6 +57,8 @@ add_action( 'wp_enqueue_scripts', 'pmpro_ml_enqueue_scripts' );
  * @return void
  */
 function pmpro_ml_add_login_button() {
+	pmpro_ml_enqueue_scripts( true );
+
 	$button_class = 'pmpro_btn pmpro_btn-primary';
 	if ( current_filter() === 'login_form' ) {
 		$button_class = 'button button-primary button-hero';
