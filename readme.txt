@@ -2,9 +2,9 @@
 Contributors: strangerstudios
 Tags: paid memberships pro, pmpro, magic link, passwordless login
 Requires at least: 5.0
-Tested up to: 6.7
+Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,6 +21,9 @@ PMPro Magic Login extends Paid Memberships Pro to allow members to log in using 
 3. Paid Memberships Pro must be installed and activated.
 
 == Changelog ==
+
+= 1.0.1 - 2026-07-21 =
+* BUG FIX: Fixed the Magic Login button in the PMPro Login Widget by loading required assets when the widget is displayed. #2 (@andrewlimaza, @dparker1005)
 
 = 1.0 =
 * Initial release.
