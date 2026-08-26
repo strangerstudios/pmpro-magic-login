@@ -77,7 +77,25 @@ function pmpro_ml_add_login_button() {
 	<?php
 }
 add_action( 'login_form', 'pmpro_ml_add_login_button' );
-add_action( 'login_form_middle', 'pmpro_ml_add_login_button' );
+
+/**
+ * Inject the "Email Me a Login Link" button into forms built with wp_login_form().
+ *
+ * login_form_middle is a filter, so the button HTML must be returned rather
+ * than echoed. Echoing here prints the button outside of the <form> element
+ * and discards any content that other plugins added to the filter.
+ *
+ * @since TBD
+ *
+ * @param string $content Content to display inside the login form. Default empty.
+ * @return string $content Content to display inside the login form.
+ */
+function pmpro_ml_login_form_middle( $content ) {
+	ob_start();
+	pmpro_ml_add_login_button();
+	return $content . ob_get_clean();
+}
+add_filter( 'login_form_middle', 'pmpro_ml_login_form_middle' );
 
 /**
  * Handle the "pmpro_magic_login" action on wp-login.php.
