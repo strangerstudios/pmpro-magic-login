@@ -85,7 +85,7 @@ add_action( 'login_form', 'pmpro_ml_add_login_button' );
  * than echoed. Echoing here prints the button outside of the <form> element
  * and discards any content that other plugins added to the filter.
  *
- * @since TBD
+ * @since 1.0.2
  *
  * @param string $content Content to display inside the login form. Default empty.
  * @return string $content Content to display inside the login form.
