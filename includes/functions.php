@@ -138,10 +138,11 @@ function pmpro_ml_handle_wp_login_submission() {
 add_action( 'login_form_pmpro_magic_login', 'pmpro_ml_handle_wp_login_submission' );
 
 /**
- * Process a login link request from the PMPro frontend login form.
+ * Process a login link request from a frontend login form.
  *
  * The button posts to wp_login_url(), which PMPro points at its own login page, so
- * the request arrives here rather than at wp-login.php. It runs on template_redirect,
+ * the request arrives here rather than at wp-login.php. This covers PMPro's login
+ * forms and any other form built with wp_login_form(). It runs on template_redirect,
  * before any output, so pmpro_ml_set_browser_cookie() can still send its cookie.
  * The result is stored for pmpro_ml_handle_frontend_login_submission() to show.
  *
@@ -153,7 +154,7 @@ function pmpro_ml_process_frontend_login_submission() {
 	global $pmpro_ml_frontend_link_sent;
 
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- nonce verified inside pmpro_ml_process_form_submission().
-	if ( ! isset( $_REQUEST['pmpro_login_form_used'], $_REQUEST['action'] ) || 'pmpro_magic_login' !== $_REQUEST['action'] ) {
+	if ( ! isset( $_REQUEST['action'] ) || 'pmpro_magic_login' !== $_REQUEST['action'] ) {
 		return;
 	}
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
