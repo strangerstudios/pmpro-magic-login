@@ -343,6 +343,12 @@ function pmpro_ml_authenticate_via_token() {
 	}
 	// phpcs:enable WordPress.Security.NonceVerification
 
+	// Tokens are always 30 lowercase hex characters. Reject anything else before the lookup.
+	// WP_User_Query ignores an empty meta_value, so an empty token would otherwise match any user with a pending link.
+	if ( ! preg_match( '/^[0-9a-f]{30}$/', $token ) ) {
+		wp_die( esc_html__( 'Invalid login link.', 'pmpro-magic-login' ), '', array( 'response' => 403 ) );
+	}
+
 	$user_query = new WP_User_Query( array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- querying by indexed token meta is required for token-based auth.
 		'meta_key'    => 'pmpro_magic_login_token', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 		'meta_value'  => $token, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
@@ -357,6 +363,11 @@ function pmpro_ml_authenticate_via_token() {
 
 	$user    = $users[0];
 	$user_id = $user->ID;
+
+	// Confirm the stored token matches exactly. The database comparison may ignore case or trailing spaces.
+	if ( ! hash_equals( (string) get_user_meta( $user_id, 'pmpro_magic_login_token', true ), $token ) ) {
+		wp_die( esc_html__( 'Invalid login link.', 'pmpro-magic-login' ), '', array( 'response' => 403 ) );
+	}
 
 	$expires = (int) get_user_meta( $user_id, 'pmpro_magic_login_expires', true );
 	if ( time() > $expires ) {
