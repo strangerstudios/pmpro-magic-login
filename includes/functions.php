@@ -402,6 +402,12 @@ function pmpro_ml_authenticate_via_token() {
 		$redirect_url = admin_url();
 	}
 
+	// Match wp-login.php's single-site rule: users who can't edit posts go to their profile instead of the dashboard.
+	// wp-login.php's form always sends redirect_to=/wp-admin/, so links requested there land here.
+	if ( ( empty( $redirect_url ) || 'wp-admin/' === $redirect_url || admin_url() === $redirect_url ) && ! $user->has_cap( 'edit_posts' ) ) {
+		$redirect_url = $user->has_cap( 'read' ) ? admin_url( 'profile.php' ) : home_url();
+	}
+
 	wp_safe_redirect( $redirect_url );
 	exit;
 }
