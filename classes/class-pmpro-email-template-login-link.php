@@ -171,12 +171,8 @@ if ( class_exists( 'PMPro_Email_Template' ) ) {
 		 */
 		public static function get_test_email_constructor_args() {
 			global $current_user;
-			if ( function_exists( 'pmpro_login_generate_login_token' ) ) {
-				$login_token = pmpro_login_generate_login_token( $current_user->ID );
-				$login_link  = add_query_arg( 'pmpro_magic_login_token', $login_token, home_url() );
-			} else {
-				$login_link = home_url();
-			}
+			// Use a sample link. A real token would log in as the current admin and replace their own pending login link.
+			$login_link = add_query_arg( 'pmpro_magic_login_token', 'TEST', home_url() );
 			return array( $current_user, $login_link );
 		}
 	} // End of class.
