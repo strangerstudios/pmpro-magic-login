@@ -110,6 +110,14 @@ add_filter( 'login_form_middle', 'pmpro_ml_login_form_middle' );
  */
 function pmpro_ml_handle_wp_login_submission() {
 	if ( pmpro_ml_process_form_submission() === false ) {
+		// Show why the request failed instead of wp-login.php's "password field is empty" error.
+		// Other errors, such as a CAPTCHA or lockout notice from another plugin, are kept.
+		add_filter( 'wp_login_errors', function( $errors ) {
+			$errors->remove( 'empty_username' );
+			$errors->remove( 'empty_password' );
+			$errors->add( 'pmpro_magic_login_failed', '<strong>' . esc_html__( 'Error:', 'pmpro-magic-login' ) . '</strong> ' . esc_html__( 'Your login link request could not be processed. Please try again.', 'pmpro-magic-login' ) );
+			return $errors;
+		} );
 		return;
 	}
 
@@ -177,7 +185,19 @@ add_action( 'template_redirect', 'pmpro_ml_process_frontend_login_submission' );
 function pmpro_ml_handle_frontend_login_submission() {
 	global $pmpro_ml_frontend_link_sent;
 
-	if ( ! empty( $pmpro_ml_frontend_link_sent ) ) {
+	if ( false === $pmpro_ml_frontend_link_sent ) {
+		?>
+		<script>
+		jQuery(document).ready(function($) {
+			$('.pmpro_card_content').first().prepend(
+				'<div role="alert" class="pmpro_message pmpro_error" id="pmpro_magic_login_error">' +
+				'<?php echo esc_js( __( 'Your login link request could not be processed. Please try again.', 'pmpro-magic-login' ) ); ?>' +
+				'</div>'
+			);
+		});
+		</script>
+		<?php
+	} elseif ( ! empty( $pmpro_ml_frontend_link_sent ) ) {
 		$login_url = function_exists( 'pmpro_login_url' ) ? pmpro_login_url() : wp_login_url();
 		?>
 		<script>
@@ -204,7 +224,7 @@ add_action( 'wp_footer', 'pmpro_ml_handle_frontend_login_submission' );
  *
  * @since 1.0
  *
- * @return bool True on success (or duplicate request), false otherwise.
+ * @return bool True on success (or duplicate or rate-limited request), false if the nonce is missing or invalid.
  */
 function pmpro_ml_process_form_submission() {
 	if ( ! isset( $_REQUEST['pmpro_magic_login_nonce'] ) ) {
@@ -237,8 +257,9 @@ function pmpro_ml_process_form_submission() {
 	}
 
 	// Rate limit: one email per user per 5 minutes.
+	// Return true so the member sees the usual message and it isn't revealed whether the account exists.
 	if ( get_transient( 'pmpro_ml_last_sent_' . $user_id ) ) {
-		return false;
+		return true;
 	}
 	set_transient( 'pmpro_ml_last_sent_' . $user_id, time(), 5 * MINUTE_IN_SECONDS );
 
